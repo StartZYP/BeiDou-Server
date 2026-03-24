@@ -104,18 +104,6 @@ public final class FakePlayerRandomizer {
             {1492000, 1492001, 1492002}
     };
 
-    /**
-     * 前缀+后缀 生成名字的备选词库（文件加载失败时的 fallback）
-     */
-    private static final String[] NAME_PREFIXES = {
-            "小", "大", "老", "阿", "黑", "白", "红", "蓝", "绿", "金",
-            "银", "紫", "青", "灰", "橙", "黄", "粉", "棕", "彩", "暗"
-    };
-    private static final String[] NAME_SUFFIXES = {
-            "剑客", "法师", "弓手", "飞侠", "海盗", "战士", "牧师", "刺客",
-            "骑士", "游侠", "贤者", "勇士", "行者", "使者", "达人", "高手",
-            "传说", "英雄", "王者", "霸主", "大神", "大佬", "萌新", "小白"
-    };
 
     /**
      * 从 classpath 加载名字文件（忽略 # 注释和空行）
@@ -188,39 +176,27 @@ public final class FakePlayerRandomizer {
     }
 
     /**
-     * 生成随机名字
-     * 80% 概率从名字库直接取，20% 概率用前缀+后缀拼接
+     * 生成随机名字（从名字库加载，30%概率加数字后缀）
      */
     private static String generateRandomName(ThreadLocalRandom rand) {
-        // 名字库可用时，80% 直接从库中取
-        if (!PLAYER_NAMES.isEmpty() && rand.nextDouble() < 0.8) {
-            String baseName = PLAYER_NAMES.get(rand.nextInt(PLAYER_NAMES.size()));
-            // 30% 概率加数字后缀
-            if (rand.nextDouble() < 0.3) {
-                return baseName + rand.nextInt(10, 9999);
-            }
-            return baseName;
+        if (PLAYER_NAMES.isEmpty()) {
+            return "冒险家" + rand.nextInt(1000, 99999);
         }
-        // fallback: 前缀+后缀
-        String prefix = NAME_PREFIXES[rand.nextInt(NAME_PREFIXES.length)];
-        String suffix = NAME_SUFFIXES[rand.nextInt(NAME_SUFFIXES.length)];
-        if (rand.nextBoolean()) {
-            return prefix + suffix + rand.nextInt(100, 9999);
+        String name = PLAYER_NAMES.get(rand.nextInt(PLAYER_NAMES.size()));
+        if (rand.nextDouble() < 0.3) {
+            return name + rand.nextInt(10, 9999);
         }
-        return prefix + suffix;
+        return name;
     }
 
     /**
-     * 生成随机公会名
-     * 90% 从公会库取，10% 不加公会
+     * 生成随机公会名（从公会库加载）
      */
     private static String generateGuildName(ThreadLocalRandom rand) {
-        if (!GUILD_NAMES.isEmpty()) {
-            return GUILD_NAMES.get(rand.nextInt(GUILD_NAMES.size()));
+        if (GUILD_NAMES.isEmpty()) {
+            return "公会" + rand.nextInt(100, 9999);
         }
-        // fallback
-        String[] fallback = {"冒险小队", "星辰公会", "英雄联盟", "王者归来"};
-        return fallback[rand.nextInt(fallback.length)];
+        return GUILD_NAMES.get(rand.nextInt(GUILD_NAMES.size()));
     }
 
     private static int generateLevelForJob(Job job, ThreadLocalRandom rand) {
